@@ -1,25 +1,26 @@
 ## ANXS - PostgreSQL [![Build Status](https://travis-ci.org/ANXS/postgresql.png)](https://travis-ci.org/ANXS/postgresql)
 
-Ansible role which installs and configures PostgreSQL, extensions, databases and users.
+Ansible role which installs and configures PostgreSQL, extensions, databases 
+and users on FreeBSD systems.
 
 
 #### Requirements & Dependencies
 - Tested on Ansible 1.4 or higher.
-- ANXS.monit ([Galaxy](https://galaxy.ansible.com/list#/roles/502)/[GH](https://github.com/ANXS/monit)) if you want monit protection (in that case, you should set `monit_protection: true`)
+- Requires FreeBSD.
 
 
 #### Variables
 
 ```yaml
 # Basic settings
-postgresql_version: 9.3
+postgresql_version: 93
 postgresql_encoding: 'UTF-8'
 postgresql_locale: 'en_US.UTF-8'
 
-postgresql_admin_user: "postgres"
+postgresql_admin_user: "pgsql"
 postgresql_default_auth_method: "trust"
 
-postgresql_cluster_name: "main"
+postgresql_cluster_name: "data"
 postgresql_cluster_reset: false
 
 # List of databases to be created (optional)
