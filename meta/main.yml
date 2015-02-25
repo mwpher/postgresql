@@ -3,11 +3,11 @@
 galaxy_info:
   author: pjan vandaele
   company: ANXS
-  description: "Install and configure PostgreSQL, dependencies, extensions, databases and users."
+  description: "Install and configure PostgreSQL, dependencies, extensions, databases and users on FreeBSD."
   min_ansible_version: 1.4
   license: MIT
   platforms:
-  - name: Ubuntu
+  - name: FreeBSD
     versions:
     - all
   categories:
