@@ -1,0 +1,3 @@
+#!/bin/sh
+PGDATA="{{postgresql_conf_directory}}"
+export PGDATA="{{postgresql_conf_directory}}"

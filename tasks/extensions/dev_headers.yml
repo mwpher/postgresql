@@ -1,10 +1,8 @@
 # file: postgresql/tasks/extensions/dev_headers.yml
 
 - name: PostgreSQL | Extensions | Make sure the development headers are installed
-  apt:
-    name: libpq-dev
+  pkgng:
+    name: postgresql-libpgeasy
     state: present
-    update_cache: yes
-    cache_valid_time: "{{apt_cache_valid_time | default (3600)}}"
   notify:
     - restart postgresql

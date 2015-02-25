@@ -9,17 +9,64 @@
     mode: 0700
   register: pgdata_dir_exist
 
+- name: PostgreSQL | Make sure the postgres conf directory exists
+  file:
+    path: "{{postgresql_conf_directory}}"
+    owner: "{{postgresql_admin_user}}"
+    group: "{{postgresql_admin_user}}"
+    state: directory
+    mode: 0700
+
+- name: PostgreSQL | Make sure the postgres log directory exists
+  file:
+    path: "{{postgresql_log_directory}}"
+    owner: "{{postgresql_admin_user}}"
+    group: "{{postgresql_admin_user}}"
+    state: directory
+    mode: 0700
+
+- name: PostgreSQL | Make sure the postgres socket directories exist
+  file:
+    path: "{{item}}"
+    owner: "{{postgresql_admin_user}}"
+    group: "{{postgresql_admin_user}}"
+    state: directory
+    mode: 0700
+  with_items: postgresql_unix_socket_directories
+
+- name: PostgreSQL | Make sure pgsql knows where the data is
+  template:
+    src: dotprofile
+    dest: "{{postgresql_home_directory}}/.profile"
+    owner: "{{postgresql_admin_user}}"
+    group: "{{postgresql_admin_user}}"
+    mode: 0700
+
+- name: PostgreSQL | Specify conf location
+  command: 'sysrc postgresql_data="{{postgresql_conf_directory}}"'
+  changed_when: false
+
+- name: PostgreSQL | Do we need to initialize the database?
+  stat:
+    path: "{{postgresql_data_directory}}/PG_VERSION"
+  register: db_ready
+
 - name: PostgreSQL | Reset the cluster - drop the existing one
-  shell: pg_dropcluster --stop {{postgresql_version}} {{postgresql_cluster_name}}
+  shell: pg_ctl stop && rm -rf {{postgresql_data_directory}}/*
   sudo: yes
-  sudo_user: "{{ postgresql_service_user }}"
+  sudo_user: "{{ postgresql_admin_user }}"
+  environment: postgresql_env
   when: postgresql_cluster_reset and pgdata_dir_exist.changed
 
 - name: PostgreSQL | Reset the cluster - create a new one (with specified encoding and locale)
-  shell: pg_createcluster --start --locale {{postgresql_locale}} -e {{postgresql_encoding}} -d {{postgresql_data_directory}} {{postgresql_version}} {{postgresql_cluster_name}}
-  sudo: yes
-  sudo_user: "{{ postgresql_service_user }}"
-  when: postgresql_cluster_reset and pgdata_dir_exist.changed
+  shell: su -l {{postgresql_service_user}} -c 'initdb --locale {{postgresql_locale}} -E {{postgresql_encoding}} -d {{postgresql_data_directory}}'
+  environment: postgresql_env
+  when: (postgresql_cluster_reset and pgdata_dir_exist.changed) or not db_ready
+
+- name: PostgreSQL | Initialize new database (with specified encoding and locale)
+  shell: su -l {{postgresql_service_user}} -c 'initdb --locale {{postgresql_locale}} -E {{postgresql_encoding}} -d {{postgresql_data_directory}}'
+  environment: postgresql_env
+  when: db_ready.stat.exists == False
 
 - name: PostgreSQL | Update configuration - pt. 1 (pg_hba.conf)
   template:

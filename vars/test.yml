@@ -1,5 +1,6 @@
 ---
 blah: one
+postgresql_pg_hba_trust_hosts: ["192.168.2.1/0"]
 postgresql_databases:
   - name: foobar
 postgresql_users:
@@ -8,3 +9,6 @@ postgresql_users:
 postgresql_user_privileges:
   - name: baz
     db: foobar
+postgresql_ext_install_contrib: true
+postgresql_ext_install_dev_headers: true
+postgresql_ext_install_postgis: true
